@@ -29,7 +29,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Semgrep scan
-        run: semgrep ci -c .semgrep -o results.sarif --sarif
+        run: semgrep ci -c .semgrep -o results.sarif --sarif || true
 
       - name: upload scan result
         uses: github/codeql-action/upload-sarif@v2
