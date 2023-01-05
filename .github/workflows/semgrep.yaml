@@ -1,0 +1,37 @@
+name: SAST Semgrep
+
+on:
+  pull_request: {}
+  push:
+  schedule:
+    - cron: '20 08 * * *'
+
+jobs:
+  semgrep:
+    name: Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    container:
+      image: returntocorp/semgrep
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Clone Rules
+        uses: actions/checkout@v3
+        with:
+          repository: a-yohan/sast-semgrep-rules
+          path: .semgrep
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Semgrep scan
+        run: semgrep ci -c .semgrep -o results.sarif --sarif
+
+      - name: upload scan result
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
