@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: '20 08 * * *'
 
+env:
+  RESULTS_FILE: results.json
+
 jobs:
   semgrep:
     name: Scan
@@ -29,9 +32,18 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Semgrep scan
-        run: semgrep ci -c .semgrep -o results.sarif --sarif || true
+        run: semgrep scan -o $RESULTS_FILE --json || true
 
-      - name: upload scan result
-        uses: github/codeql-action/upload-sarif@v2
+      - name: Upload scan result
+        uses: a-yohan/sast-report-action@v1
         with:
-          sarif_file: results.sarif
+          json_file: ${{ env.RESULTS_FILE }}
+          url: ${{ secrets.ES_HOST }}
+          user: ${{ secrets.ES_USERNAME }}
+          password: ${{ secrets.ES_PASSWORD }}
+          disable_ssl_validation: true
+          kibana_base_path: 'https://139.162.31.198/s/sast/app/discover#/'
+          
+      
+      - name: Clean up
+        run: rm $RESULTS_FILE
