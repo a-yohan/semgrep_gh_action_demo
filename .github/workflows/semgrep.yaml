@@ -12,6 +12,7 @@ env:
 jobs:
   semgrep:
     name: Scan
+    environment: dev
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -42,7 +43,7 @@ jobs:
           user: ${{ secrets.ES_USERNAME }}
           password: ${{ secrets.ES_PASSWORD }}
           disable_ssl_validation: true
-          kibana_base_path: 'https://139.162.31.198/s/sast/app/discover#/'
+          kibana_base_path: ${{ env.KIBANA_BASE }}
           
       
       - name: Clean up
