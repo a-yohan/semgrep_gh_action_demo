@@ -35,7 +35,7 @@ jobs:
         run: semgrep scan -o $RESULTS_FILE --json || true
 
       - name: Upload scan result
-        uses: a-yohan/sast-report-action@v1
+        uses: a-yohan/sast-report-action@main
         with:
           json_file: ${{ env.RESULTS_FILE }}
           url: ${{ secrets.ES_HOST }}
