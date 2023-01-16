@@ -5,21 +5,46 @@ on:
   push:
   schedule:
     - cron: '20 08 * * *'
+
 env:
-  KIBANA_BASE: ''
-  
+  RESULTS_FILE: results.json
+
 jobs:
   semgrep:
     name: Scan
+    runs-on: ubuntu-latest
+    environment: dev
     permissions:
       security-events: write
       actions: read
       contents: read
+    container:
+      image: returntocorp/semgrep
     if: (github.actor != 'dependabot[bot]')
-    uses: a-yohan/sast-report-action/.github/workflows/semgrep.yml@main
-    with:
-      url: ${{ secrets.ES_HOST }}
-      user: ${{ secrets.ES_USERNAME }}
-      password: ${{ secrets.ES_PASSWORD }}
-      disable_ssl_validation: true
-      kibana_base_path: ${{ env.KIBANA_BASE }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Clone Rules
+        uses: actions/checkout@v3
+        with:
+          repository: a-yohan/sast-semgrep-rules
+          path: .semgrep
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Semgrep scan
+        run: semgrep scan -o $RESULTS_FILE --json || true
+
+      - name: Upload scan result
+        uses: a-yohan/sast-report-action@main
+        with:
+          json_file: ${{ env.RESULTS_FILE }}
+          url: ${{ secrets.ES_HOST }}
+          user: ${{ secrets.ES_USERNAME }}
+          password: ${{ secrets.ES_PASSWORD }}
+          disable_ssl_validation: true
+          kibana_base_path: ${{ env.KIBANA_BASE }}
+          
+      
+      - name: Clean up
+        run: rm $RESULTS_FILE
