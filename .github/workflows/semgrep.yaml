@@ -40,7 +40,7 @@ jobs:
         with:
           json_file: ${{ env.RESULTS_FILE }}
           url: ${{ vars.ES_HOST }}
-          user: ${{ secrets.ES_USERNAME }}
+          username: ${{ secrets.ES_USERNAME }}
           password: ${{ secrets.ES_PASSWORD }}
           disable_ssl_validation: 'true'
           kibana_base_path: ${{ vars.KIBANA_BASE }}
