@@ -43,7 +43,7 @@ jobs:
           user: ${{ secrets.ES_USERNAME }}
           password: ${{ secrets.ES_PASSWORD }}
           disable_ssl_validation: true
-          kibana_base_path: ${{ env.KIBANA_BASE }}
+          kibana_base_path: ${{ vars.KIBANA_BASE }}
           
       
       - name: Clean up
